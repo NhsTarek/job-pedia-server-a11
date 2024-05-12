@@ -29,6 +29,7 @@ const client = new MongoClient(uri, {
   async function run() {
     try {
      const jobsCollection = client.db('jobPedia').collection('jobs')
+     const appliedJobsCollection = client.db('jobPedia').collection('appliedJobs')
 
     // getting all jobs data
      
@@ -47,6 +48,14 @@ const client = new MongoClient(uri, {
       res.send(result);
     })
 
+
+    // saving data of appliedJobs
+    app.post('/appliedjobs', async(req, res) =>{
+      const applyData = req.body;
+      
+      const result = await appliedJobsCollection.insertOne(applyData);
+      res.send(result);
+    })
 
 
  
