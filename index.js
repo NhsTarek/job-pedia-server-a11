@@ -1,18 +1,24 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
 const app = express();
 
-const corsOption = {
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
-    Credential: true,
-    optionSuccessStatus: 200,
+const corsConfig = {
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
 
-}
-app.use(cors(corsOption))
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+  }
+  app.use(cors(corsConfig))
+
 app.use(express.json())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.1qruita.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -30,6 +36,39 @@ const client = new MongoClient(uri, {
     try {
      const jobsCollection = client.db('jobPedia').collection('jobs')
      const bidsCollection = client.db('jobPedia').collection('bids')
+
+
+    //  JWT
+      
+   app.post('/jwt', async(req, res) =>{
+    const user = req.body;
+    console.log('user for token', user);
+    const token = jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{
+      expiresIn : '365d'
+    })
+    console.log(token);
+    res
+    .cookie('token', token,{
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+    })
+    .send({ success: true})
+    
+   })
+
+  //  clear token on logout
+  app.get('/logout', async(req, res) =>{
+    res
+    .clearCookie('token',{
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      maxAge:0,
+    })
+    .send({ success: true})
+  })
+
 
     // getting all jobs data
      
