@@ -112,6 +112,14 @@ const client = new MongoClient(uri, {
       const result = await bidsCollection.find(query).toArray();
       res.send(result);
     })
+
+    // delete a applied job
+    app.delete('/my-applied-jobs/:id', async (req, res) =>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await bidsCollection.deleteOne(query);
+      res.send(result);
+    })
  
       // Send a ping to confirm a successful connection
       await client.db("admin").command({ ping: 1 });
