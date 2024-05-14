@@ -102,7 +102,16 @@ const client = new MongoClient(uri, {
       const result = await jobsCollection.updateOne(query, updateDoc, options);
       res.send(result);
     })
+    
 
+    // getting applied jobs for a specific user
+
+    app.get('/my-applied-jobs/:email', async (req, res) =>{
+      const email = req.params.email;
+      const query = {email}
+      const result = await bidsCollection.find(query).toArray();
+      res.send(result);
+    })
  
       // Send a ping to confirm a successful connection
       await client.db("admin").command({ ping: 1 });
